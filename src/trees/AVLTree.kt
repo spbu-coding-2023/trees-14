@@ -15,7 +15,7 @@ class AVLTree<T : Comparable<T>>(data: T) : BaseTree<T, AVLNode<T>>() {
             return newNode
         } // after this root always exist (зуб даю)
 
-        var curNode = root ?: throw ExeptionAllGoesOnPizde("pizda...")
+        var curNode = root ?: throw ExeptionSomethingGoWrong("unreal...")
         while (true) {
             if (newNode.data > curNode.data) {
                 if (curNode.right == null) {
@@ -25,7 +25,7 @@ class AVLTree<T : Comparable<T>>(data: T) : BaseTree<T, AVLNode<T>>() {
                     root = balance(root!!) //вопросы по скилу
                     return newNode
                 }
-                curNode = curNode.right ?: throw ExeptionAllGoesOnPizde("unreal...")
+                curNode = curNode.right ?: throw ExeptionSomethingGoWrong("unreal...")
             } else {
                 if (curNode.left == null) {
                     newNode.parent = curNode
@@ -34,7 +34,7 @@ class AVLTree<T : Comparable<T>>(data: T) : BaseTree<T, AVLNode<T>>() {
                     root = balance(root!!) //вопросы по скилу
                     return newNode
                 }
-                curNode = curNode.left ?: throw ExeptionAllGoesOnPizde("unreal...")
+                curNode = curNode.left ?: throw ExeptionSomethingGoWrong("unreal...")
             }
         }
     }
@@ -78,7 +78,7 @@ class AVLTree<T : Comparable<T>>(data: T) : BaseTree<T, AVLNode<T>>() {
         TODO("Not yet implemented")
     }
 
-    fun ExeptionAllGoesOnPizde(s: String): Throwable {
+    fun ExeptionSomethingGoWrong(s: String): Throwable {
         TODO("Not yet implemented")
     }
 
