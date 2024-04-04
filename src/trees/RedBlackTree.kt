@@ -305,27 +305,3 @@ class RedBlackTree<T:Comparable<T>>{
         deleteNode(this.root, data)
     }
 
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val bst = RedBlackTree<String>()
-            bst.insert("huy")
-            bst.insert("pizda")
-            bst.insert("suka")
-            bst.insert("pizdec")
-            bst.insert("grob")
-            var t = bst.iter()
-            for (i in t.indices) {
-                println(t[i].toString() + ' ')
-            }
-            bst.deleteNode("huy")
-            t = bst.iter()
-            if (bst.searchNode("pizdac") === bst.empty) {
-                print("sfdsd")
-            }
-            for (i in t.indices) {
-                println(t[i].toString())
-            }
-        }
-    }
-}
