@@ -1,127 +1,183 @@
-package trees;
+package trees
 
 import trees.nodes.AVLNode
 import kotlin.math.max
 
+internal class AVLTree <T : Comparable<T>>() : BaseTree<T, AVLNode<T>>(){
 
-class AVLTree<T : Comparable<T>>(data: T) : BaseTree<T, AVLNode<T>>() {
+    //
+    //returns the height of the node
+    private fun heihgtN(key: AVLNode<T>?): Int {
+        return key?.height ?: 0
+    }
 
-    override fun createNode(data: T) = AVLNode(data)
 
-    override fun add(data: T): AVLNode<T> {
-        val newNode = createNode(data)
-        if (root == null) {
-            root = newNode
-            return newNode
-        } // after this root always exist (зуб даю)
+    // Balance computes the balance factor of the node
+    private fun Balance(key: AVLNode<T>?): Int {
+        return if (key == null) 0
+        else heihgtN(key.right) - heihgtN(key.left)
+    }
 
-        var curNode = root ?: throw ExeptionSomethingGoWrong("unreal...")
-        while (true) {
-            if (newNode.data > curNode.data) {
-                if (curNode.right == null) {
-                    newNode.parent = curNode
-                    curNode.right = newNode
-                    fixHeights(curNode)
-                    root = balance(root!!) //вопросы по скилу
-                    return newNode
-                }
-                curNode = curNode.right ?: throw ExeptionSomethingGoWrong("unreal...")
-            } else {
-                if (curNode.left == null) {
-                    newNode.parent = curNode
-                    curNode.left = newNode
-                    fixHeights(curNode)
-                    root = balance(root!!) //вопросы по скилу
-                    return newNode
-                }
-                curNode = curNode.left ?: throw ExeptionSomethingGoWrong("unreal...")
+
+    // updateHeight updates the height of the node
+    private fun updateHeight(key: AVLNode<T>?) {
+        val l = heihgtN(key!!.left)
+        val r = heihgtN(key.right)
+
+        key.height = (max(l.toDouble(), r.toDouble()) + 1).toInt()
+    }
+
+    private fun rotateLeft(x: AVLNode<T>?): AVLNode<T> {
+        val y = x!!.right
+        val T2 = y!!.left
+
+        y.left = x
+        x.right = T2
+
+        updateHeight(x)
+        updateHeight(y)
+
+        return y
+    }
+
+    private fun rotateRight(y: AVLNode<T>?): AVLNode<T> {
+        val x = y!!.left
+        val T2 = x!!.right
+
+        x.right = y
+        y.left = T2
+
+        updateHeight(y)
+        updateHeight(x)
+
+        return x
+    }
+
+    // balanceTree balances the tree using rotations after an insertion or deletion
+    private fun balanceTree(root: AVLNode<T>): AVLNode<T> {
+        updateHeight(root)
+
+        val balance = Balance(root)
+
+        if (balance > 1) //R
+        {
+            if (Balance(root.right) < 0) //RL
+            {
+                root.right = rotateRight(root.right)
+                return rotateLeft(root)
+            } else  //RR
+                return rotateLeft(root)
+        }
+
+        if (balance < -1) //L
+        {
+            if (Balance(root.left) > 0) //LR
+            {
+                root.left = rotateLeft(root.left)
+                return rotateRight(root)
+            } else  //LL
+                return rotateRight(root)
+        }
+
+        return root
+    }
+
+    override var root: AVLNode<T>? = null
+    override fun find(data: T): AVLNode<T>? {
+        return findNode(root,data)
+    }
+
+
+    private fun insert(root: AVLNode<T>?, key: T): AVLNode<T> {
+        if (root == null) return AVLNode(key)
+        else if (key < root.value) root.left = insert(root.left, key)
+        else root.right = insert(root.right, key)
+
+        // Balances the tree after BST Insertion
+        return balanceTree(root)
+    }
+
+    // Successor returns the next largest node
+    private fun Successor(root: AVLNode<T>?): AVLNode<T>? {
+        return if (root!!.left != null) Successor(root.left)
+        else root
+    }
+
+
+    private fun remove(node: AVLNode<T>?, key: T): AVLNode<T>? {
+        // Performs standard BST Deletion
+        var root = node
+        if (root == null) return root
+        else if (key < root.value) root.left = remove(root.left, key)
+        else if (key > root.value) root.right = remove(root.right, key)
+        else {
+            if (root.right == null) root = root.left
+            else if (root.left == null) root = root.right
+            else {
+                val temp = Successor(root.right)
+                root.value = temp!!.value
+                root.right = remove(root.right, root.value)
             }
         }
+
+        return if (root == null) root
+        else  // Balances the tree after deletion
+            balanceTree(root)
     }
 
-    private fun fixOneHeight(node: AVLNode<T>) {
-        val hR = node.right?.height ?: 0
-        val hL = node.left?.height ?: 0
-        node.height = max(hR, hL) + 1
+
+    private fun findNode(root: AVLNode<T>?, key: T): AVLNode<T>? {
+        if (root == null || key == root.value) return root
+
+        return if (key < root.value) findNode(root.left, key)
+        else findNode(root.right, key)
     }
 
-    private fun fixHeights(node: AVLNode<T>) {
-        if ((node.right?.height ?: 0) == (node.left?.height ?: 0))
-            return
+    override fun add(data: T): AVLNode<T>?{
+        return adding(data)
 
-        fixOneHeight(node)
-        if (node.parent == null)
-            return
-
-        fixHeights(node.parent ?: return)
     }
 
-    override fun find(data: T): AVLNode<T>? {
-        var curNode = root
-        for (i in 1..(root?.height ?: 0)) {
-            if (curNode != null)
-                if (data > curNode.data)
-                    curNode = curNode.right
-                else if (data < curNode.data)
-                    curNode = curNode.left
-                else
-                    return curNode
+    private fun adding(data: T): AVLNode<T>? {
+        if (findNode(root, data) == null) {
+            root = insert(root, data)
+            //println("Inserted")
+            return root
         }
+        //println("Key already in tree")
         return null
     }
 
-    override fun delete(data: T) {
-        TODO("Not yet implemented")
+    fun search(key: T): Int {
+        return if (findNode(root, key) == null) 0
+        else 1
     }
 
-    override fun print() {
-        TODO("Not yet implemented")
-    }
-
-    fun ExeptionSomethingGoWrong(s: String): Throwable {
-        TODO("Not yet implemented")
-    }
-
-    private fun balance(node: AVLNode<T>): AVLNode<T>? {
-        fixOneHeight(node)
-        if (balanceFactor(node) == 2) {
-            if (node.right != null && balanceFactor(node.right!!) < 0) { //вопросы по скилу
-                node.right = rotateRight(node.right!!)
-            }
-            return rotateLeft(node)
+    override fun delete(data: T): AVLNode<T>? {
+        if (findNode(root, data) != null) {
+            root = remove(root, data)
+            return root
         }
-        if (balanceFactor(node) == -2) {
-            if (node.left != null && balanceFactor(node.left!!) > 0) { //вопросы по скилу
-                node.left = rotateLeft(node.left!!)
-            }
-            return rotateRight(node)
+        //println("key not in tree")
+        return null
+    }
+    private var out = mutableListOf<T>()
+    private fun inOrder(root: AVLNode<T>?) {
+        if (root == null) {
+            return
         }
-        return node // no balancing needed
+
+        if (root.left != null) inOrder(root.left)
+        out.add(root.value)
+        if (root.right != null) inOrder(root.right)
     }
 
-    private fun balanceFactor(node: AVLNode<T>): Int {
-        return (node.right?.height ?: 0) - (node.left?.height ?: 0)
-    }
+    override fun createNode(data: T): AVLNode<T> = AVLNode(data)
 
-    private fun rotateRight(P: AVLNode<T>): AVLNode<T>? {
-        val Q = P.left
-        if (Q != null) {
-            P.left = Q.right
-            Q.right = P
-            fixOneHeight(P)
-            fixOneHeight(Q)
-        }
-        return Q
-    }
 
-    private fun rotateLeft(Q: AVLNode<T>): AVLNode<T>? {
-        val P = Q.right
-        if (P != null) {
-            Q.right = P.left
-            P.left = Q
-            fixOneHeight(Q)
-            fixOneHeight(P)
-        }
-        return P
+    override fun iterator(): MutableList<T> {
+        out = mutableListOf<T>()
+        inOrder(root)
+        return out
     }
 }
