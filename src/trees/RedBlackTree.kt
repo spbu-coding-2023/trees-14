@@ -304,4 +304,4 @@ class RedBlackTree<T:Comparable<T>>{
     fun deleteNode(data: T) {
         deleteNode(this.root, data)
     }
-
+}
