@@ -83,33 +83,34 @@ class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
 
             val righ = node.right // >node
             val lef = node.left // <node
+            righ!!.parent = null
+            lef!!.parent = null
             if (node.parent == null) {
                 root = righ
-                root!!.parent = null
                 var curNode = righ
                 while (curNode!!.left != null) {
                     curNode = curNode.left
                 }
-                lef!!.parent=curNode
+                lef.parent=curNode
                 curNode.left = lef
 
             }
             else {
                 if (node.parent!!.data > data) {
-                    righ!!.parent = node.left
+                    righ!!.parent = node.parent
                     node.parent!!.left = righ
                     var curNode = righ
                     while (true) {
                         if (curNode!!.left == null) {
                             lef!!.parent=curNode
                             curNode.left = lef
-
                             break
                         }
                         curNode = curNode.left
 
                     }
                 } else {
+                    righ.parent = node.parent
                     node.parent!!.right = righ
                     var curNode = righ
                     while (true) {
