@@ -6,7 +6,6 @@ import trees.nodes.BinarySearchNode
 class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
     override var root: BinarySearchNode<T>? = null
     override fun createNode(data: T): BinarySearchNode<T> = BinarySearchNode(data)
-
     override fun add(data: T): BinarySearchNode<T> {
         if (root == null) {
             root = createNode(data)
@@ -14,6 +13,13 @@ class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
         }
         val newNode = createNode(data)
         var curNode = root
+
+        if (find(data) != null) {
+            //print("hi")
+            //println(data)
+            return find(data)!!
+        }
+        //println(data)
         while (true) {
             if (curNode == null)
                 return newNode
@@ -49,7 +55,7 @@ class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
                 else
                     return null
             }
-            if (curNode!!.data < data) {
+            else if (curNode!!.data < data) {
                 if (curNode.right != null)
                     curNode = curNode.right
                 else
@@ -60,7 +66,10 @@ class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
     }
 
     override fun delete(data: T): BinarySearchNode<T>? {
-        val node = find(data) ?: return null
+
+        val node = find(data)
+        if (node == null)
+            return null
         if (node.right == null && node.left == null) {
             if (node.parent == null) {
                 root = null
@@ -69,35 +78,43 @@ class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
             } else
                 node.parent!!.right = null
             return node
-        } else if (node.right != null && node.left != null) {
+        }
+        else if (node.right != null && node.left != null) {
+
             val righ = node.right // >node
-            val lef = node.left // < node
+            val lef = node.left // <node
             if (node.parent == null) {
                 root = righ
-                var curNode = root
-                while (true) {
-                    if (curNode!!.left == null) {
-                        curNode.left = lef
-                        break
-                    } else
-                        curNode = curNode.left
+                root!!.parent = null
+                var curNode = righ
+                while (curNode!!.left != null) {
+                    curNode = curNode.left
                 }
-            } else {
+                lef!!.parent=curNode
+                curNode.left = lef
+
+            }
+            else {
                 if (node.parent!!.data > data) {
+                    righ!!.parent = node.left
                     node.parent!!.left = righ
                     var curNode = righ
                     while (true) {
                         if (curNode!!.left == null) {
+                            lef!!.parent=curNode
                             curNode.left = lef
+
                             break
-                        } else
-                            curNode = curNode.left
+                        }
+                        curNode = curNode.left
+
                     }
                 } else {
                     node.parent!!.right = righ
                     var curNode = righ
                     while (true) {
                         if (curNode!!.left == null) {
+                            lef!!.parent=curNode
                             curNode.left = lef
                             break
                         } else
@@ -106,20 +123,26 @@ class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
                 }
             }
 
-        } else if (node.right != null || node.left != null) {
+        } else{
             if (node.parent == null) {
                 root = node.left ?: node.right
+                root!!.parent = null
                 return node
             } else if (node.right != null) {
-                if (node.parent!!.data > data)
+                if (node.parent!!.data > data){
+                    node.right!!.parent = node.parent
                     node.parent!!.left = node.right
-                else
-                    node.parent!!.right = node.right
+                }
+                else{
+                    node.right!!.parent = node.parent
+                    node.parent!!.right = node.right}
             } else {
-                if (node.parent!!.data > data)
-                    node.parent!!.left = node.left
-                else
-                    node.parent!!.right = node.left
+                if (node.parent!!.data > data){
+                    node.left!!.parent = node.parent
+                    node.parent!!.left = node.left}
+                else{
+                    node.left!!.parent = node.parent
+                    node.parent!!.right = node.left}
             }
         }
         return node
@@ -132,14 +155,15 @@ class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
         return out
     }
 
-    private fun inOrder(root: BinarySearchNode<T>?) {
-        if (root == null) {
+    private fun inOrder(node: BinarySearchNode<T>?) {
+        if (node == null)
             return
-        }
-
-        if (root.left != null) inOrder(root.left)
-        out.add(root.value)
-        if (root.right != null) inOrder(root.right)
+        out.add(node.value)
+        if (node.left != null)
+            inOrder(node.left)
+//        out.add(root.value)
+        if (node.right != null)
+            inOrder(node.right)
     }
 
 }
