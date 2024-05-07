@@ -90,7 +90,7 @@ internal class AVLTree <T : Comparable<T>> : BaseTree<T, AVLNode<T>>(){
 
     private fun insert(root: AVLNode<T>?, key: T, data:Any): AVLNode<T> {
         if (root == null) return createNode(key, data)
-        else if (key < root.key) root.left = insert(root.left, key, data)
+        else if (key < root.key!!) root.left = insert(root.left, key, data)
         else root.right = insert(root.right, key, data)
 
         // Balances the tree after BST Insertion
@@ -108,8 +108,8 @@ internal class AVLTree <T : Comparable<T>> : BaseTree<T, AVLNode<T>>(){
         // Performs standard BST Deletion
         var root = node
         if (root == null) return root
-        else if (key < root.key) root.left = remove(root.left, key)
-        else if (key > root.key) root.right = remove(root.right, key)
+        else if (key < root.key!!) root.left = remove(root.left, key)
+        else if (key > root.key!!) root.right = remove(root.right, key)
         else {
             if (root.right == null) root = root.left
             else if (root.left == null) root = root.right
@@ -117,7 +117,7 @@ internal class AVLTree <T : Comparable<T>> : BaseTree<T, AVLNode<T>>(){
                 val temp = Successor(root.right)
                 root.key = temp!!.key
                 root.value = temp.value
-                root.right = remove(root.right, root.key)
+                root.right = remove(root.right, root.key!!)
             }
         }
 
@@ -130,7 +130,7 @@ internal class AVLTree <T : Comparable<T>> : BaseTree<T, AVLNode<T>>(){
     private fun findNode(root: AVLNode<T>?, key: T): AVLNode<T>? {
         if (root == null || key == root.key) return root
 
-        return if (key < root.key) findNode(root.left, key)
+        return if (key < root.key!!) findNode(root.left, key)
         else findNode(root.right, key)
     }
 
@@ -149,9 +149,9 @@ internal class AVLTree <T : Comparable<T>> : BaseTree<T, AVLNode<T>>(){
         return root
     }
 
-    fun search(key: T): Int {
-        return if (findNode(root, key) == null) 0
-        else 1
+    fun isInTree(key: T): Boolean {
+        return if (findNode(root, key) == null) false
+        else true
     }
 
     override fun delete(key: T): AVLNode<T>? {
@@ -168,7 +168,7 @@ internal class AVLTree <T : Comparable<T>> : BaseTree<T, AVLNode<T>>(){
         }
 
         if (root.left != null) inOrder(root.left)
-        out.add(Pair(root.key, root.value))
+        out.add(Pair(root.key!!, root.value!!))
         if (root.right != null) inOrder(root.right)
     }
 
