@@ -1,10 +1,12 @@
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import src.trees.AVLTree
 import src.trees.nodes.AVLNode
 
 class AVLTest {
-    //coverage with JaCoCo - https://disk.yandex.ru/i/GFDp0L3AScO1CQ
+    //coverage with JaCoCo - https://disk.yandex.ru/i/W74oobAQvmBp3g
     @Test
     //a test to check the structure of the resulting tree
     //an img of tree - https://disk.yandex.ru/i/2r6Fza70QbaQpg
@@ -47,14 +49,14 @@ class AVLTest {
         tree.add(2, 1)
         tree.add(0, 1)
         tree.add(11, 1)
-        assertEquals(null, tree.delete(100))
+        assertNull(tree.delete(100))
     }
 
     @Test
     //a test to check the removal from non-existent node from an empty tree
     fun testDeleteNodeFromEmptyTree() {
         val tree: AVLTree<Int> = AVLTree()
-        assertEquals(null, tree.delete(100))
+        assertNull(tree.delete(100))
     }
 
     @Test
@@ -215,7 +217,7 @@ class AVLTest {
         tree.add(0, 1)
         tree.add(11, 1)
         val q = tree.find(12)
-        assertEquals(null ,q)
+        assertNull(q)
     }
 
     @Test
@@ -232,7 +234,7 @@ class AVLTest {
         tree.add(0, 1)
         tree.add(11, 1)
         val q = tree.find(13)
-        assertEquals(true, q!!.key == 13 && q.value == 1)
+        assertTrue(q!!.key == 13 && q.value == 1)
     }
 
     @Test
@@ -248,11 +250,48 @@ class AVLTest {
         tree.add(2, 1)
         tree.add(0, 1)
         tree.add(11, 1)
-        assertEquals(true,  !tree.isInTree(12) && tree.isInTree(13))
+        assertTrue(!tree.isInTree(12) && tree.isInTree(13))
     }
     @Test
     fun testPrintEmptyTree(){
         val tree: AVLTree<Int> = AVLTree()
         assertEquals(mutableListOf<Pair<Int,Any>>(), tree.iter())
     }
+    @Test
+    fun testBalanceAfterInsertion() {
+        val tree = AVLTree<Int>()
+        tree.add(10, 1)
+        tree.add(20, 1)
+        tree.add(30, 1)
+
+        // Check the height of the root after insertions
+        val root = tree.root
+        assertEquals(2, root!!.height) // Expected height after insertions
+
+        // Add more nodes to ensure the tree remains balanced
+        tree.add(40, 1)
+        tree.add(50, 1)
+        tree.add(25, 1)
+
+        // Check the height of the root after more insertions
+        val newRoot = tree.root
+        assertEquals(3, newRoot!!.height) // Expected height after more insertions
+        assertTrue(isBalanced(newRoot)) // Check that the tree is still balanced
+    }
+
+    private fun balance(key: AVLNode<*>?): Int {
+        return if (key == null) 0
+        else (key.right?.height ?: 0) - (key.left?.height ?: 0)
+    }
+    private fun isBalanced(node: AVLNode<*>?): Boolean {
+        if (node == null) return true
+
+        val balance = balance(node)
+        if (balance > 1 || balance < -1) {
+            return false
+        }
+
+        return isBalanced(node.left) && isBalanced(node.right)
+    }
 }
+
