@@ -1,16 +1,19 @@
+package src.trees
 import trees.nodes.RBNode
 
 
-class RedBlackTree<T : Comparable<T>> {
-    private var root: RBNode<T>?
-    private val empty = RBNode<T>()
+class RedBlackTree<T : Comparable<T>>: BaseTree<T, RBNode<T>>() {
+    override var root: RBNode<T>?
+    override fun createNode(key: T, data: Any): RBNode<T> {
+        return RBNode(key, data)
+    }
+
+    private var empty: RBNode<T>? = RBNode()
 
     private fun inOrder(node: RBNode<T>?, t: MutableList<Pair<T, Any>>) {
         if (node !== empty) {
-            if (node != null) {
-                t.add(Pair(node.key!!, node.data!!))
-            }
             inOrder(node!!.left, t)
+            t.add(Pair(node.key!!, node.data!!))
             inOrder(node.right, t)
         }
     }
@@ -198,19 +201,19 @@ class RedBlackTree<T : Comparable<T>> {
     }
 
     init {
-        empty.color = 0
-        empty.left = null
-        empty.right = null
+        empty!!.color = 0
+        empty!!.left = null
+        empty!!.right = null
         root = empty
     }
 
-    fun iter(): List<Pair<T, Any>> {
+    override fun iter(): MutableList<Pair<T, Any>> {
         val t: MutableList<Pair<T, Any>> = ArrayList()
         inOrder(this.root, t)
         return t
     }
 
-    fun find(k: T): RBNode<T>? {
+    override fun find(k: T): RBNode<T>? {
         return find(root, k)
     }
 
@@ -258,14 +261,13 @@ class RedBlackTree<T : Comparable<T>> {
         y.right = x
         x.parent = y
     }
-
-    fun add(key: T, value: Any) {
+    override fun add(key: T, value: Any): RBNode<T>? {
         if (find(key) != null) {
             find(key)?.data = value
-            return
+            return find(key)
         }
-        val node = RBNode<T>()
-        node.parent = null
+        val node: RBNode<T>? = RBNode()
+        node!!.parent = null
         node.key = key
         node.data = value
         node.left = empty
@@ -295,18 +297,23 @@ class RedBlackTree<T : Comparable<T>> {
 
         if (node.parent == null) {
             node.color = 0
-            return
+            return RBNode()
         }
 
         if (node.parent!!.parent == null) {
-            return
+            return RBNode()
         }
 
         fixInsert(node)
+        return node
     }
-
-
-    fun delete(key: T) {
-        delete(this.root, key)
+    override fun delete(key: T): RBNode<T>? {
+        if (find(key) == null) {
+            return null
+        } else {
+            val t = find(key)
+            delete(this.root, key)
+            return t
+        }
     }
 }
