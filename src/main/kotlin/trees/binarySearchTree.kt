@@ -2,7 +2,6 @@ package src.trees
 
 import src.trees.nodes.BinarySearchNode
 
-
 class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
     override var root: BinarySearchNode<T>? = null
     override fun createNode(key: T, data: Any): BinarySearchNode<T> = BinarySearchNode(key, data)
@@ -16,15 +15,13 @@ class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
         val temp = find(key)
         if (temp != null) {
             temp.value = data
-            //print("hi")
-            //println(data)
-            return temp!!
+            return temp
         }
-        //println(data)
+
         while (true) {
             if (curNode == null)
                 return newNode
-            if (curNode.key > key) {
+            if (curNode.key!! > key) {
                 if (curNode.left == null) {
                     curNode.left = newNode
                     newNode.parent = curNode
@@ -39,7 +36,6 @@ class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
                 } else
                     curNode = curNode.right
             }
-
         }
     }
 
@@ -49,14 +45,13 @@ class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
         }
         var curNode = root
         while (true) {
-
-            if (curNode!!.key > key) {
+            if (curNode!!.key!! > key) {
                 if (curNode.left != null)
                     curNode = curNode.left
                 else
                     return null
             }
-            else if (curNode!!.key < key) {
+            else if (curNode!!.key!! < key) {
                 if (curNode.right != null)
                     curNode = curNode.right
                 else
@@ -67,71 +62,67 @@ class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
     }
 
     override fun delete(key: T): BinarySearchNode<T>? {
-
         val node = find(key)
         if (node == null)
             return null
         if (node.right == null && node.left == null) {
             if (node.parent == null) {
                 root = null
-            } else if (node.parent!!.key > key) {
+            } else if (node.parent!!.key!! > key) {
                 node.parent!!.left = null
             } else
                 node.parent!!.right = null
             return node
         }
         else if (node.right != null && node.left != null) {
-
-            val righ = node.right // >node
-            val lef = node.left // <node
-            righ!!.parent = null
-            lef!!.parent = null
+            val right_side = node.right // >node
+            val left_side = node.left // <node
+            right_side!!.parent = null
+            left_side!!.parent = null
             if (node.parent == null) {
-                root = righ
-                var curNode = righ
+                root = right_side
+                var curNode = right_side
                 while (curNode!!.left != null) {
                     curNode = curNode.left
                 }
-                lef.parent=curNode
-                curNode.left = lef
-
+                left_side.parent=curNode
+                curNode.left = left_side
             }
             else {
-                if (node.parent!!.key > key) {
-                    righ!!.parent = node.parent
-                    node.parent!!.left = righ
-                    var curNode = righ
+                if (node.parent!!.key!! > key) {
+                    right_side!!.parent = node.parent
+                    node.parent!!.left = right_side
+                    var curNode = right_side
                     while (true) {
                         if (curNode!!.left == null) {
-                            lef!!.parent=curNode
-                            curNode.left = lef
+                            left_side!!.parent=curNode
+                            curNode.left = left_side
                             break
                         }
                         curNode = curNode.left
 
                     }
                 } else {
-                    righ.parent = node.parent
-                    node.parent!!.right = righ
-                    var curNode = righ
+                    right_side.parent = node.parent
+                    node.parent!!.right = right_side
+                    var curNode = right_side
                     while (true) {
                         if (curNode!!.left == null) {
-                            lef!!.parent=curNode
-                            curNode.left = lef
+                            left_side!!.parent=curNode
+                            curNode.left = left_side
                             break
                         } else
                             curNode = curNode.left
                     }
                 }
             }
-
-        } else{
+        } else {
             if (node.parent == null) {
                 root = node.left ?: node.right
                 root!!.parent = null
                 return node
             } else if (node.right != null) {
-                if (node.parent!!.key > key){
+                if (node.parent!!.key!! > key){
                     node.right!!.parent = node.parent
                     node.parent!!.left = node.right
                 }
@@ -139,7 +130,7 @@ class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
                     node.right!!.parent = node.parent
                     node.parent!!.right = node.right}
             } else {
-                if (node.parent!!.key > key){
+                if (node.parent!!.key!! > key){
                     node.left!!.parent = node.parent
                     node.parent!!.left = node.left}
                 else{
@@ -160,12 +151,10 @@ class binarySearchTree<T : Comparable<T>> : BaseTree<T, BinarySearchNode<T>>() {
     private fun inOrder(node: BinarySearchNode<T>?) {
         if (node == null)
             return
-        out.add(Pair(node.key, node.value))
+        out.add(Pair(node.key!!, node.value!!))
         if (node.left != null)
             inOrder(node.left)
-//        out.add(root.value)
         if (node.right != null)
             inOrder(node.right)
     }
-
 }
